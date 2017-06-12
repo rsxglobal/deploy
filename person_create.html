@@ -1,0 +1,1068 @@
+@model Sabio.Web.Models.ViewModels.ItemViewModel<int>
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+}
+
+@section styles {
+    <link href="~/Content/select2.css" rel="stylesheet" />
+    <link href="~/Content/angular-material.css" rel="stylesheet" />
+    <link href="~/Scripts/Plugins/Cropper/Cropper.css" rel="stylesheet" />
+}
+<style>
+    .photo {
+        width: 200px;
+        height: 200px;
+    }
+
+    .edit {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .personController .demo-header-searchbox {
+        border: none;
+        outline: none;
+        height: 100%;
+        width: 100%;
+        padding: 0;
+    }
+
+    .personController .demo-select-header {
+        box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(0, 0, 0, 0.14), 0 0 0 0 rgba(0, 0, 0, 0.12);
+        padding-left: 10.667px;
+        height: 48px;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: auto;
+    }
+
+    .personController md-content._md {
+        max-height: 240px;
+    }
+
+    .content {
+        padding-top: 40px;
+    }
+
+    .page-header > h1 {
+        font-size: 36px;
+        font-family: 'Open Sans', "Helvetica Neue",Helvetica,Arial,sans-serif;
+        color: #707478;
+        font-weight: 500;
+    }
+
+    html {
+        background-color: #fff;
+    }
+</style>
+
+<div class="content">
+    <div data-ng-if="lVm.model.item == lVm.model.id" data-ng-controller="personController as peVm" class="container">
+        <div class="page-header">
+            <h1 class="text-center">{{peVm.item.firstName}} {{peVm.item.lastName}}</h1>
+        </div>
+        <div class="row">
+            <div class="col-md-12 m-t-20">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div>
+                            <div class="profile-container">
+                                <div class="profile-left col-md-4">
+                                    <div class="row">
+                                        <h4 class="pull-left m-l-10">{{peVm.item.jobTitle}}</h4>
+                                    </div>
+                                    <div class="m-b-20">
+                                        <img ng-cropper
+                                             ng-cropper-options="options"
+                                             ng-cropper-show="'show.cropper'"
+                                             ng-cropper-hide="'hide.cropper'" class="photo" ng-src="{{peVm.item.profilePicture}}" />
+                                        <i class="fa fa-user hide"></i>
+                                    </div>
+
+                                    <!-- begin profile-highlight -->
+                                    <div class="profile-highlight">
+                                        <h4><i class="fa fa-cog"></i>User Status</h4>
+
+                                        <label>
+                                            <input type="checkbox" ng-model="peVm.item.isVeteran">
+                                            <strong>Veteran</strong>
+                                        </label>
+                                        <div></div>
+                                        <label>
+                                            <input type="checkbox" ng-model="peVm.item.isFamilyMember">
+                                            <strong>Family Member</strong>
+                                        </label>
+                                        <div>
+                                        </div>
+                                        <label>
+                                            <input type="checkbox" ng-model="peVm.item.isEmployer">
+                                            <strong>Employer</strong>
+                                        </label>
+                                    </div>
+
+                                    <!-- end profile-highlight -->
+                                    <div>
+                                        <div>
+                                            <button ng-if="peVm.item.companies.length == 1" type="button" class="btn btn-primary edit" data-ng-click="peVm.editCompany()">Edit Company</button>
+                                            <div class="btn-group m-r-5 m-b-5" ng-if="peVm.item.companies.length > 1">
+                                                <a href="javascript:;" data-toggle="dropdown" class="btn btn-default dropdown-toggle">Edit Company<span class="caret"></span></a>
+                                                <ul class="dropdown-menu">
+                                                    <li data-ng-repeat="item in peVm.item.companies"><a href="/companies/{{item.id}}/edit">{{item.name}}</a></li>
+                                                </ul>
+                                            </div>
+                                            <br />
+                                            <button type="button" class="btn btn-warning" ng-click="isCollapsed = !isCollapsed">Add/Update Photo</button>
+                                            <div uib-collapse="isCollapsed" ng-model="peVm.isCollapsed">
+
+                                                <ng-form method="post" enctype="multipart/form-data" multiple>
+                                                    <div class="fileupload-buttonbar">
+                                                        <span class="btn btn-default-focus fileinput-button">
+                                                            <input type="file" name="file" accept="image/*" class="file" id="uploadToCanvas">
+                                                        </span>
+                                                        <div class="pull=left">
+                                                            <div id="canvas"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <button type="button" class="btn btn-primary file upload-btn" id="fileSubmit"
+                                                                ng-click="peVm.fileSubmit()" value="Upload Photo">
+                                                            <i class="fa fa-upload"></i>
+                                                            <span>Save Photo</span>
+                                                        </button>
+                                                    </div>
+                                                </ng-form>
+                                            </div>
+                                        </div>
+                                        <p></p>
+                                        <div>
+                                            <button type="button" class="btn btn-warning" ng-click="isCollapsedResume = !isCollapsedResume">Add/Update Resume</button>
+                                            <div uib-collapse="isCollapsedResume" ng-model="peVm.isCollapsed">
+                                                <ng-form id="resumeUpload" method="post" enctype="multipart/form-data">
+                                                    <div class="fileupload-buttonbar up">
+                                                        <span class="btn btn-default-focus fileinput-button-">
+                                                            <input type="file" name="myResume" id="myResume" accept=".pdf,.doc, .docx, application/msword, application/pdf">
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <button type="button" class="btn btn-primary" id="resumeSubmit" ng-click="peVm.btnResumeSubmit()" value="Upload Resume">
+                                                            <i class="fa fa-upload"></i>
+                                                            <span>Save Resume</span>
+                                                        </button>
+                                                    </div>
+                                                </ng-form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-right col-md-8">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#home">Home</a></li>
+                                <li><a data-toggle="tab" href="#menu1">Address</a></li>
+                                <li><a data-toggle="tab" href="#menu2">About Me</a></li>
+                                <li><a data-toggle="tab" href="#menu3">Notifications</a></li>
+                                <li><a data-toggle="tab" href="#menu4">Employment</a></li>
+                                <li><a data-toggle="tab" href="#menu5" ng-if="peVm.item.isVeteran === true">Veterans</a></li>
+                            </ul>
+                            <button type="button" class="btn btn-primary btn-sm pull-right " style="margin: 10px" ng-click="peVm.save()">Save</button>
+                            <div class="tab-content">
+                                <div id="home" class="tab-pane fade in active">
+                                    <h3>Personal Info</h3>
+                                    <form name="editForm" ng-submit="peVm.submitForm(editForm.$valid)" novalidate>
+                                        <div class="form-group">
+                                            <label>First Name</label>
+                                            <input type="text" class="form-control" ng-model="peVm.item.firstName" name="firstName" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Middle Name</label>
+                                            <input type="text" class="form-control" ng-model="peVm.item.middleName" name="middleName" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Last Name</label>
+                                            <input type="text" class="form-control" ng-model="peVm.item.lastName" name="lastName" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Phone</label><label class="pull-right">Public</label> <input type="checkbox" class="pull-right" />
+                                            <input type="text" class="form-control" ng-model="peVm.item.phoneNumber" name="phoneNumber" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Email</label><label class="pull-right">Public</label> <input type="checkbox" class="pull-right" />
+                                            <input type="text" class="form-control" ng-model="peVm.item.email" name="email" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date Of Birth</label><label class="pull-right">Public</label> <input type="checkbox" class="pull-right" />
+                                            <div>
+                                                <md-datepicker data-ng-model="peVm.item.dateOfBirth" md-placeholder="Enter date"></md-datepicker>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="menu1" class="tab-pane fade">
+                                    <h3>Address</h3>
+                                    <form>
+                                        <div class="form-group">
+                                            <label>Address 1</label><label class="pull-right">Public</label> <input type="checkbox" class="pull-right" />
+                                            <input type="text" class="form-control" ng-model="peVm.item.address1" name="address1" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Address 2</label>
+                                            <input type="text" class="form-control" ng-model="peVm.item.address2" name="address2" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>City</label>
+                                            <input type="text" class="form-control" ng-model="peVm.item.city" name="city" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Postal Code</label>
+                                            <input type="text" class="form-control" ng-model="peVm.item.postalCode" name="postalCode" />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Country</label>
+                                            <md-input-container>
+                                                <md-select ng-model="peVm.item.countryId"
+                                                           md-on-close="clearSearchTerm()"
+                                                           data-md-container-class="personController" ng-change="peVm.countryChange()">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchTerm" type="search" class="demo-header-searchbox md-text searchTerm">
+                                                    </md-select-header>
+                                                    <md-optgroup label="Countries">
+                                                        <md-option ng-value="country.id" ng-repeat="country in peVm.allCountry | filter: searchTerm">{{country.name}}</md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                            </md-input-container>
+                                            <p></p>
+                                            <label>State/Province</label>
+                                            <md-input-container>
+                                                <md-select ng-model="peVm.item.stateProvinceId"
+                                                           md-on-close="clearSearchStateProvince()"
+                                                           data-md-container-class="personController">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchStateProvince"
+                                                               type="search"
+                                                               class="demo-header-searchbox md-text searchStateProvince">
+                                                    </md-select-header>
+                                                    <md-optgroup label="State Province">
+                                                        <md-option ng-value="stateProvince.id" ng-repeat="stateProvince in peVm.stateProvinces | filter: searchStateProvince">{{stateProvince.name}}</md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="menu2" class="tab-pane fade">
+                                    <h3>About Me</h3>
+                                    <div class="form-group">
+                                        <label>Job Title</label>
+                                        <input type="text" class="form-control" ng-model="peVm.item.jobTitle" name="jobTitle" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ckEditor">Description</label>
+                                        <textarea class="ckeditor" ng-model="peVm.item.description" id="ckeditor" name="ckeditor" ng-minlength="5" data-ng-bind-html="peVm.sanitize(peVm.item.description)" ng-required="string" ng-maxlength="1000"></textarea>
+                                        <p ng-show="peVm.missingMission" class="error-msg">This field is required.</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Education</label>
+                                        <md-input-container class="color">
+                                            <md-select ng-model="peVm.item.educationLevelId"
+                                                       data-md-container-class="personController">
+                                                <md-select-header class="demo-select-header">
+                                                </md-select-header>
+                                                <md-optgroup label="Education">
+                                                    <md-option ng-value="educationLevel.id" ng-repeat="educationLevel in peVm.educationLevels">{{educationLevel.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Choose a Skill</label>
+                                        <md-input-container>
+                                            <md-select ng-model="peVm.item.skillIds"
+                                                       md-on-close="clearSearchSkill()"
+                                                       data-md-container-class="personController"
+                                                       multiple>
+                                                <md-select-header class="demo-select-header">
+                                                    <input ng-model="searchSkill"
+                                                           type="search"
+                                                           @* placeholder="Choose a Skill" *@
+                                                           class="demo-header-searchbox md-text searchSkill">
+                                                </md-select-header>
+                                                <md-optgroup label="Skills">
+                                                    <md-option ng-value="skill.id" ng-repeat="skill in peVm.allSkills | filter: searchSkill">{{skill.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Choose a Language</label>
+                                        <md-input-container>
+                                            <md-select ng-model="peVm.item.languageProficiencyKeys"
+                                                       md-on-close="clearSearchLang()"
+                                                       data-md-container-class="PersonController"
+                                                       data-ng-change="peVm.singleLanguageLevel()"
+                                                       multiple>
+                                                <md-select-header class="demo-select-header">
+                                                    <input ng-model="searchLang"
+                                                           type="search"
+                                                           @* placeholder="Choose a Language" *@
+                                                           class="demo-header-searchbox md-text searchLang">
+                                                </md-select-header>
+                                                <md-optgroup label="Language">
+                                                    <md-option ng-value="la.key" ng-repeat="la in peVm.allLanguages | filter: searchLang">{{la.name}}{{" "}}{{la.code}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                                <div id="menu3" class="tab-pane fade">
+                                    <h3>Notification Events</h3>
+                                    <table class="table table-hover">
+                                        <tr data-ng-repeat="preference in peVm.item.preferences">
+                                            <td class="field"><i class="fa-lg m-r-5"></i>{{preference.notificationEventName}}</td>
+                                            <td><input type="checkbox" ng-model="preference.sendText" /> Text</td>
+                                            <td><input type="checkbox" ng-model="preference.sendEmail" /> Email</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div id="menu4" class="tab-pane fade">
+                                    <h3>Employment</h3>
+                                    <div>
+                                        <textarea placeholder="Briefly describe your employement status" class="form-control" rows="3" ng-model="peVm.item.employmentStatus"></textarea>
+                                    </div>
+                                    <p></p>
+                                    <h4>Are you currently Employed?</h4>
+                                    <label>
+                                        <input type="checkbox" ng-model="peVm.item.isEmployed">
+                                        <strong>Check If Yes</strong>
+                                    </label>
+                                    <p></p>
+                                    <h4>Did Operation Code help you find employment?</h4>
+                                    <label>
+                                        <input type="checkbox" ng-model="peVm.item.opCodeEmployAssist">
+                                        <strong>Check If Yes</strong>
+                                    </label>
+                                </div>
+                                <div id="menu5" class="tab-pane fade">
+                                    <h3>Veterans</h3>
+                                    @*<div class="form-group">
+                                        <label for="repeatSelect"> Service Branch: </label>
+                                        <select ng-options="svcBranches.id as svcBranches.name for svcBranches in peVm.svcBranches" ng-model="svcBranches.name"></select>
+                                        </div>*@
+                                    <div class="md-padding" ng-cloak>
+                                        <h6 class="md-title">Choose a Military Base</h6>
+                                        <div layout="row">
+                                            <label>Military Bases</label>
+                                            <md-input-container>
+                                                <md-select ng-model="peVm.item.militaryBaseIds"
+                                                           md-on-close="clearSearchMB()"
+                                                           data-md-container-class="personController"
+                                                           multiple>
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchMB"
+                                                               type="search"
+                                                               @* placeholder="Choose a Military Base.." *@
+                                                               class="demo-header-searchbox md-text searchMB">
+                                                    </md-select-header>
+                                                    <md-optgroup label="Military Base">
+                                                        <md-option ng-value="mb.id" ng-repeat="mb in peVm.allMilitaryBases | filter:searchMB">{{mb.militaryBaseName}}</md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- end form content -->
+@section pageInitScripts{
+    <script src="~/Scripts/angular-aria.js"></script>
+    <script src="~/Scripts/angular-material.min.js"></script>
+    <script src="~/Scripts/sabio/sabio.material.js"></script>
+    <script src="~/Assets/Admin/plugins/ckeditor/ckeditor.js"></script>
+    <script src="~/Scripts/ng/angular-ckeditor.min.js"></script>
+}
+
+@section Scripts{
+    @*<script src="~/Assets/blog/js/Image_cropper.js"></script>*@
+    <script src="~/Scripts/angular-material.js"></script>
+    <script src="~/Scripts/sabio.services.person.js"></script>
+    <script src="~/Scripts/sabio.services.geography.js"></script>
+    <script src="~/Scripts/sabio.services.militaryBase.js"></script>
+    <script src="~/Scripts/sabio.services.language.js"></script>
+    <script src="~/Scripts/sabio.services.languageproficiency.js"></script>
+    <script src="~/Scripts/sabio.services.skill.js"></script>
+    <script src="~/Scripts/sabio.services.educationlevel.js"></script>
+    <script src="~/Scripts/sabio.services.companyperson.js"></script>
+    <script src="~/Scripts/sabio.ui.toastr.js"></script>
+    <script src="~/Scripts/sabio.services.person.js"></script>
+    <script src="~/Scripts/sabio.services.file.js"></script>
+    <script src="~/Scripts/sabio.services.educationlevel.js"></script>
+    <script src="~/Scripts/Plugins/Cropper/Cropper.js"></script>
+    <script src="~/Scripts/sabio.services.cropper.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            sabio.services.cropper.options(300, 300, 'square');
+            $('#uploadToCanvas').on('change', sabio.services.cropper.bindToCropper);
+            $('.upload-btn').on('click', sabio.services.cropper.uploadToServer);
+        });
+    </script>
+
+    <script>
+        sabio.page.personId = @Model.Item;
+        //START OF SERVICES ////
+        (function () {
+            "use strict";
+            angular.module(APPNAME)
+                .factory('personService', PersonService);
+
+            PersonService.$inject = ['$baseService', '$sabio'];
+
+            function PersonService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.person;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+                .factory('geographyService', GeographyService);
+
+            GeographyService.$inject = ['$baseService', '$sabio'];
+
+            function GeographyService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.geography;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+
+            angular.module(APPNAME)
+                .factory('militaryBaseService', MilitaryBaseService);
+
+            MilitaryBaseService.$inject = ['$baseService', '$sabio'];
+
+            function MilitaryBaseService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.militaryBase;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+                .factory('languageProficiencyService', LanguageProficiencyService);
+
+            LanguageProficiencyService.$inject = ['$baseService', '$sabio'];
+
+            function LanguageProficiencyService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.languageProficiency;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+                .factory('skillService', SkillService);
+
+            SkillService.$inject = ['$baseService', '$sabio'];
+
+            function SkillService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.skill;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+                .factory('fileService', FileService);
+
+            FileService.$inject = ['$baseService', '$sabio'];
+
+            function FileService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.file;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+                .factory('educationLevelService', EducationLevelService);
+
+            EducationLevelService.$inject = ['$baseService', '$sabio'];
+
+            function EducationLevelService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.educationlevel;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+                .factory('companyPersonService', CompanyPersonService);
+
+            CompanyPersonService.$inject = ['$baseService', '$sabio'];
+
+            function CompanyPersonService($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.companyperson;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                return newService;
+            }
+        })();
+
+        //END OF SERVICES ////
+
+        (function () {
+            angular.module(APPNAME)
+            .controller('personController', PersonController);
+
+            PersonController.$inject = ['$scope', '$window', '$baseController', 'personService', 'geographyService', 'militaryBaseService', 'languageProficiencyService', 'skillService', 'fileService', 'companyPersonService', 'educationLevelService', '$sabio', "$q", "$timeout", "$element", '$sce'];
+
+            function PersonController($scope, $window, $baseController, personService, geographyService, militaryBaseService, languageProficiencyService, skillService, fileService, companyPersonService, educationLevelService,  $sabio, $q, $timeout, $element, $sce) {
+                //basic
+                var vm = this;
+                vm.$scope = $scope;
+                $scope.isCollapsed = true;
+                $scope.isCollapsedResume = true;
+                vm.$window = $window;
+                $baseController.merge(vm, $baseController);
+                //services
+                vm.companyPersonService = companyPersonService;
+                vm.educationLevelService = educationLevelService;
+                vm.personService = personService;
+                vm.geographyService = geographyService;
+                vm.militaryBaseService = militaryBaseService;
+                vm.languageProficiencyService = languageProficiencyService;
+                vm.skillService = skillService;
+                vm.fileService = fileService;
+                vm.educationLevelService = educationLevelService;
+                vm.simulateQuery = false;
+                vm.isDisabled = false;
+
+                //material search start
+                vm.searchTerm = '';
+                vm.searchLang = '';
+                vm.searchSkill = '';
+                vm.searchMB = '';
+                vm.clearSearchTerm = _clearSearchTerm;
+                vm.clearSearchLang = _clearSearchLang;
+                vm.clearSearchSkill = _clearSearchSkill;
+                vm.clearSearchLevel = _clearSearchLevel;
+                vm.clearSearchMB = _clearSearchMB;
+
+
+                vm.queryCountries = queryCountries
+                vm.querySkills = querySkills;
+                vm.queryMilitaryBases = queryMilitaryBases;
+                vm.queryLanguages = queryLanguages;
+                vm.queryStateProvince = queryStateProvince;
+                //material search end
+
+                //crud functions
+                vm.id = null;
+                vm.save = _save;
+                vm.select = _select;
+                vm.cancel = _cancel;
+                vm.openEditForm = _openEditForm;
+                vm.editCompany = _editCompany;
+                vm.fileSubmit = _fileSubmit;
+               
+                vm.btnResumeSubmit = _btnResumeSubmit;
+               
+                vm.sanitize = _sanitize;
+
+                //item
+                vm.items = [];
+                vm.item = {};
+                vm.itemIndex = -1;
+
+                //geography start
+                vm.allCountry = [];
+                vm.selectedCountry = null;
+                vm.stateProvinces = [];
+                vm.stateProvince = [];
+                vm.educationLevels = [];
+                vm.selectedStateProvince = null;
+                vm.countryChange = _countryChange;
+                vm.stateProvinceChange = _stateProvinceChange;
+                vm.getCountries = _getCountries;
+                vm.getStateProvinces = _getStateProvinces;
+                //geography end
+                vm.allLanguages = null;
+                vm.singleLanguageLevel = _singleLanguageLevel;
+                vm.allSkills = null;
+                vm.allMilitaryBases = null;
+                vm.svcBranches = null;
+                vm.selectedEducationLevel = {};
+                vm.options = { format: 'LL', showClear: true };
+
+                //function calls
+                _getCountries();
+                _getStateProvinces();
+                _getEducationLevels();
+                _onGetPhotoSuccess
+                var formData = new FormData();
+                formData.append("files", $(".file")[0].files[0]);
+                _render();
+
+
+                //md-select search functions start
+                $element.find('.searchCountry').on('keydown', function(ev) {
+                    ev.stopPropagation();
+                });
+
+                $element.find('.searchTerm').on('keydown', function(ev) {
+                    ev.stopPropagation();
+                });
+
+                $element.find('.searchLang').on('keydown', function(ev) {
+                    ev.stopPropagation();
+                });
+
+                $element.find('.searchSkill').on('keydown', function(ev) {
+                    ev.stopPropagation();
+                });
+
+                $element.find('.searchStateProvince').on('keydown', function(ev) {
+                    ev.stopPropagation();
+                });
+
+                $element.find('.searchMB').on('keydown', function(ev) {
+                    ev.stopPropagation();
+                });
+                //md-select search functions start
+
+                function _render() {
+                    _select();
+                    _getLanguages();
+                    _getSkills();
+                    _getMilitaryBases();
+                    _clearSearchTerm();
+                    _clearSearchLang();
+                    _clearSearchSkill();
+                    _clearSearchLevel();
+                    _clearSearchMB();
+                    _sanitize();
+                    _getAllServiceBranches();
+                    _clearSearchCountry();
+                    //start country state
+                }
+
+                function _editCompany() {
+                    location.replace("/companies/" + vm.item.companies[0].id + "/edit");
+                }
+
+                function querySearch(query) {
+                    var results = query ? vm.allCountry.filter(createFilterFor(query)) : vm.allCountry,
+                        deferred;
+                    if (vm.simulateQuery) {
+                        deferred = $q.defer();
+                        $timeout(function () { deferred.resolve(results); }, Math.random() * 1000, false);
+                        return deferred.promise;
+                    } else {
+                        return results;
+                    }
+                }
+                function createFilterFor(query) {
+                    var lowercaseQuery = angular.lowercase(query);
+
+                    return function filterFn(state) {
+                        return (state.value.indexOf(lowercaseQuery) === 0);
+                    };
+                }
+                function _openEditForm(){
+                    vm.hideForm = true;
+                    vm.editForm = { inactive: false };
+                }
+
+                function _sanitize(html_code) {
+                    return $sce.trustAsHtml(html_code);
+                }
+
+                //Prevents multiple Proficiency levels being selected for same language
+                function _singleLanguageLevel() {
+                    var keys = vm.item.languageProficiencyKeys;
+                    //Splits Language Id and Proficiency Id
+                    for (var i = 0; i < (keys.length); i++) {
+                        if (keys[i]){
+                            var split = keys[i]
+                            keys[i] = split.split("-");
+                        }
+                    }
+                    //Compares for matching Language Ids, removes older entry if match
+                    for (var i = (keys.length); i > 0; i--) {
+                        if (keys[(i - 2)]) {
+                            if (keys[(keys.length - 1)][0] == keys[(i - 2)][0]) {
+                                keys.splice((i - 2), 1)
+                            }
+                        }
+                    }
+                    //Joins Language Id and Proficiency Id back
+                    for (var i = 0; i < (keys.length); i++) {
+                        if (keys[i]) {
+                            var join = keys[i];
+                            keys[i] = join.join("-");
+                        }
+                    }
+                    //Sets new array to View model
+                    vm.item.languageProficiencyKeys = keys;
+                }
+
+                // Education level functions
+                function _getEducationLevels() {
+                    vm.educationLevelService.getAll(_getEducationLevelsSuccess, _getEducationLevelsError);
+                }
+
+                function _getEducationLevelsSuccess(data) {
+                    if (data.items) {
+                        vm.$scope.$apply(function () {
+                            vm.educationLevels = data.items;
+                        })
+                    }
+                }
+
+                function _getEducationLevelsError(data) {
+                    vm.$alertService.error("Failed to load education levels");
+                }
+
+                // Geography functions
+                function _getCountries() {
+                    vm.geographyService.getAllCountries(_getCountriesSuccess, _getCountriesError);
+                }
+
+                function _getCountriesSuccess(data) { //goback
+                    //console.log("country", data.items);
+                    vm.allCountry = data.items;
+                    _getStateProvinces();
+                }
+
+                function _getCountriesError(data) {
+                    vm.$alertService.error("Failed to get countries");
+                }
+
+                function _countryChange(data) {//markstate//added data to parameter
+                    vm.item.countryId = vm.selectedCountry.id;
+                    vm.geographyService.getStateProvincesByCountryId(vm.item.countryId, _getStateProvincesSuccess, _getStateProvincesError);
+
+                }
+                function _stateProvinceChange() {//markstate
+                    vm.item.stateProvinceId = vm.selectedStateProvince.id;
+                    //console.log("state province change", vm.item);
+                }
+                function _getStateProvinces(){
+                    //console.log("hello");
+                    vm.geographyService.getAllStateProvinces(_getStateProvincesSuccess, _getStateProvincesError);
+                    //console.log('states', data);
+                }
+                function _getStateProvincesSuccess(data) {
+
+                    vm.stateProvinces = data.items;
+                }
+
+                function _getStateProvincesError(data) {
+                    vm.$alertService.error("Failed to get states/provinces");
+                }
+
+                //end country state
+
+                //md select query functions start
+                function querySkills(query){
+                    //console.log("query", query);
+                    return query ? vm.allSkills.filter(createFilterForSkills(query)) : vm.allSkills;
+                }
+
+                function queryMilitaryBases(query) {
+                    //console.log("query", query);
+                    return query ? vm.allMilitaryBases.filter(createFilterForMilitaryBases(query)) : vm.allMilitaryBases;
+                }
+
+                function queryLanguages(query){
+                    //console.log("query", query);
+                    return query? vm.allLanguages.filter(createFilterForLanguages(query)) : vm.allLanguages;
+                }
+
+                function queryCountries(query){
+                    //console.log("querycountry", query);
+                    return query? vm.allCountry.filter(createFilterForCountries(query)) :vm.allCountry;
+                }
+
+                function queryStateProvince(query){
+                    //console.log("queryStateProvince", query);
+                    return query? vm.stateProvinces.filter(createFilterForStateProvinces(query)) :vm.stateProvinces;
+                }
+                //md select query functions stop
+
+                function createFilterForSkills(query){
+                    return function filterFn(skill){
+                        //console.log("filterFn.skill", skill);
+                        return (skill.name.toLowerCase().indexOf(query.toLowerCase()) > -1);
+                    }
+                }
+
+                function createFilterForMilitaryBases(query){
+                    return function filterFn(militaryBase){
+                        console.log("filterFn.militaryBase", militaryBase);
+                        return (militaryBase.militaryBaseName.toLowerCase().indexOf(query.toLowerCase()) === 0);
+                    };
+                }
+
+                function createFilterForLanguages(query){
+                    return function filterFn(language) {
+                        console.log('filterFn.language', language);
+                        return (language.name.toLowerCase().indexOf(query.toLowerCase()) === 0)
+                    }
+                }
+
+                function createFilterFor(query) {
+                    var lowercaseQuery = angular.lowercase(query);
+                    return function filterFn(state) {
+                        return (state.value.indexOf(lowercaseQuery) === 0);
+                    };
+                }
+                //searchTerm start
+                function _clearSearchTerm() {
+                    vm.searchTerm = '';
+                };
+
+                function _clearSearchLang() {
+                    vm.searchLang = '';
+                };
+
+                function _clearSearchSkill() {
+                    vm.searchSkill = '';
+                };
+
+                function _clearSearchLevel() {
+                    vm.searchLevel = '';
+                };
+
+                function _clearSearchMB() {
+                    vm.searchMB = '';
+                }
+                function _clearSearchCountry() {
+                    vm.searchCountry = '';
+                }
+                //searchTerm end
+
+                function _select() {
+                    //CKEDITOR.instances.ckeditor.setData("");
+                    var id = vm.$sabio.personId;
+                    vm.personService.getById(id, _getByIdSuccess, _getByIdError)
+                }
+
+                function _getAllError(jqXHR) {
+                    vm.$alertService.error(jqXHR.responseText, "Get All failed");
+                }
+
+                //base example
+                function _getByIdSuccess(data) {  //markCountry
+                    if (data.item.country) {
+                        data.item.countryId = data.item.country.id;
+                    }
+                    if (data.item.stateProvince){//dog
+                        data.item.stateProvinceId = data.item.stateProvince.id;
+                    }
+                    if (data.item.militaryBases) {
+                        data.item.militaryBaseIds = data.item.militaryBases.map(function(base){ return base.id });
+                    }
+                    if (data.item.skills) {
+                        data.item.skillIds =
+                            data.item.skills.map(function(base){ return base.id});
+                    }
+                    if (data.item.languages) {
+                        data.item.languageProficiencyKeys =
+                            data.item.languages.map(function(lang){return lang.key});
+                    }
+                    if (data.item.preferences) {
+                        for (var i = 0; i < data.item.preferences.length; i++) {
+                            data.item.preferences[i].personId = data.item.id;
+                        }
+                    }
+                    if (data.item.educationLevelId) {
+                        vm.$scope.$apply(function () {
+                            vm.selectedEducationLevel = vm.educationLevels.find(eduLevel => eduLevel.id == data.item.educationLevelId);
+                        })
+                    }
+                    console.log(data.item);
+                    if (data.item){
+                        vm.$scope.$apply (function () {
+                            vm.item = data.item;
+                            CKEDITOR.instances.ckeditor.insertHtml(data.item.description);
+                        });
+                    }
+                    //base example
+                    vm.$alertService.success("Retrieved item for editing from database");
+                }
+
+                function _getByIdError(jqXHR) {
+                    vm.$alertService.error(jqXHR.responseText, "GetById failed");
+                }
+
+                function _cancel() {
+                    vm.editForm = { inactive: true };
+                    vm.hideForm = false;
+                    _endEdit();
+                }
+
+                function _endEdit() {
+                    vm.editForm = null;
+                    vm.itemIndex = -1;
+                }
+
+                function _save() {
+                    vm.hideForm = false;
+                    console.log(vm.item);
+                    vm.item.description = CKEDITOR.instances.ckeditor.getData();
+                    vm.personService.putJson(vm.item.id, vm.item, _putSuccess, _putError);
+                }
+
+                function _putSuccess(data) {
+                    vm.$scope.$apply(function(){
+                        vm.items[vm.itemIndex] = vm.item;
+                        _endEdit();
+                        vm.$alertService.success("Update successful")
+                    });
+                }
+
+                function _putError(jqXHR) {
+                    vm.$alertService.error(jqXHR.responseText, "Update failed");
+                }
+
+                function _postSuccess(data) {
+                    if (data.item) {
+                        vm.$scope.$apply  (function () {
+                            vm.item.id = data.item;
+                            vm.items.push(vm.item);
+                            _endEdit();
+                            vm.$alertService.success("Insert success!")
+                        });
+                    }
+                }
+
+                function _postError(jqXHR) {
+                    vm.$alertService.error(jqXHR.responseText, "Insert failed!!!!")
+                }
+                //GET SVC Branches BEGIN
+                function _getAllServiceBranches(){
+                    vm.militaryBaseService.getAllServiceBranches(_serviceBranchSuccess, _serviceBranchError);
+                }
+
+                function _serviceBranchSuccess(data){
+                    console.log(data);
+                    vm.$scope.$apply(function () {
+                        vm.svcBranches = data.items;
+                    });
+                }
+
+                function _serviceBranchError(err) {
+                    console.log("Service Branch fail")
+                }
+
+                //military bases begin
+                function _getMilitaryBases() {
+                    vm.militaryBaseService.getAll(_militaryBasesOnSuccess, _militaryBasesOnError);
+                }
+                function _militaryBasesOnSuccess(data) {
+                    vm.$scope.$apply(function(){
+                        vm.allMilitaryBases = data.items;
+                    })
+                }
+
+                function _militaryBasesOnError(err) {
+                    console.log("Military fail")
+                }
+
+                //skills begin
+                function _getSkills() {
+                    vm.skillService.getAll(_skillsOnSuccess, _skillsOnError);
+                }
+
+                function _skillsOnSuccess(data) {
+                    vm.$scope.$apply(function(){
+                        vm.allSkills = data.items;
+                    })
+                }
+
+                function _skillsOnError(err) {
+                    console.log("Skill fail");
+                }
+                //skills end
+                function _getLanguages(){
+                    vm.languageProficiencyService.read(_languagesOnSuccess, _languagesOnError);
+                }
+
+                function _languagesOnSuccess(data){
+                    vm.$scope.$apply(function() {
+                        vm.allLanguages = data.items;
+                    });
+                }
+
+                function _languagesOnError(err){//markLang3
+                    console.log("language error");
+                }
+
+                //Geography end
+                //start upload
+                function _getPhoto() {
+                    _getPhoto(_onGetPhotoSuccess, _onError)
+                }
+
+                function _fileSubmit() {
+                    var formData = new FormData();
+                    formData.append("files", $(".file")[0].files[0]);
+                    console.log('photo', formData);
+                    vm.fileService.postPhoto(formData, _onSuccess, _onError);
+                    //sabio.services.file.
+                }
+
+                function _btnResumeSubmit() {
+                    var formData = new FormData();
+                    formData.append("files", $("#myResume")[0].files[0]);
+                    console.log(formData);
+                    vm.fileService.postResume(formData, _onSuccess, _onError);
+                }
+
+                function _onSuccess() {
+                    vm.$alertService.success("File Uploaded Successfully");
+                }
+
+                function _onError() {
+                    vm.$alertService.error("Errors !!!");
+                }
+
+                function _onGetPhotoSuccess(data){
+                    var url = "https://sabio-training.s3-us-west-2.amazonaws.com/C31/" + data;
+                    console.log(url);
+                    //need to target selector with angular
+                    //$(".photo").prop("src", url).removeClass("hidden").animate({
+                    //    left: '250px',
+                    //    height: '150px',
+                    //    width: '150px'
+                    //});
+                }
+
+                function _onGetPhotoError(){
+                    vm.$alertService.error("Error Encountered");
+                }
+            }
+        })();
+    </script>
+}
